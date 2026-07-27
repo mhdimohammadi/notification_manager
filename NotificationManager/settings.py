@@ -9,9 +9,8 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = env.bool("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -112,3 +111,7 @@ STATIC_URL = 'static/'
 
 
 AUTH_USER_MODEL = 'account.User'
+
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
