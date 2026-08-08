@@ -11,7 +11,6 @@ DEBUG = env.bool("DEBUG")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -19,7 +18,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'account.apps.AccountConfig'
+    # my apps
+    'account.apps.AccountConfig',
+    'channel.apps.ChannelConfig',
+    # packages
+    'rest_framework',
+
 ]
 
 MIDDLEWARE = [
@@ -108,10 +112,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-
-
 AUTH_USER_MODEL = 'account.User'
-
 
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
