@@ -2,8 +2,8 @@ from email.utils import formataddr
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail.backends.smtp import EmailBackend
 from ..models import EmailConfiguration
-import socket
 import smtplib
+import socket
 from .exceptions import EmailTimeoutError,EmailConnectionError,EmailAuthenticationError
 
 
@@ -37,7 +37,7 @@ class EmailSender:
         except smtplib.SMTPAuthenticationError as exc:
             raise EmailAuthenticationError("SMTP authentication failed.") from exc
 
-        except smtplib.SMTPConnectError as exc:
+        except (smtplib.SMTPConnectError,socket.gaierror) as exc:
             raise EmailConnectionError("SMTP connection failed.") from exc
 
         except (TimeoutError,socket.timeout) as exc:
