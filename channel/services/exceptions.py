@@ -12,3 +12,8 @@ class EmailAuthenticationError(EmailSenderError):
 
 class EmailTimeoutError(EmailSenderError):
     """Raised when SMTP operation times out."""
+
+
+
+class EmailConfigurationError(EmailSenderError):
+    """Raised when email configuration or encrypted credentials are invalid."""

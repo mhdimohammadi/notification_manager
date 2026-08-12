@@ -4,8 +4,9 @@ from django.core.mail.backends.smtp import EmailBackend
 from ..models import EmailConfiguration
 import smtplib
 import socket
-from .exceptions import EmailTimeoutError,EmailConnectionError,EmailAuthenticationError
-
+from .exceptions import EmailTimeoutError,EmailConnectionError,EmailAuthenticationError,EmailConfigurationError
+from .encryption import EncryptionService
+from cryptography.fernet import InvalidToken
 
 class EmailSender:
     def __init__(self, configuration: EmailConfiguration):
@@ -13,12 +14,17 @@ class EmailSender:
 
     def send(self, *, to, subject, body, html_body=None, cc=None, bcc=None, ):
         config = self.configuration
+        encryption_service = EncryptionService()
+        try :
+            password = encryption_service.decrypt(config.password)
+        except (InvalidToken,ValueError) as exc:
+            raise EmailConfigurationError("Email configuration contains an invalid encrypted password.") from exc
 
         connection = EmailBackend(
             host=config.host,
             port=config.port,
             username=config.username,
-            password=config.password,
+            password=password,
             use_tls=config.use_tls,
             use_ssl=config.use_ssl,
             timeout=config.timeout)
@@ -42,3 +48,6 @@ class EmailSender:
 
         except (TimeoutError,socket.timeout) as exc:
             raise EmailTimeoutError("Email connection timed out.") from exc
+
+
+

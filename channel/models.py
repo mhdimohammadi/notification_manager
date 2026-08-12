@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from .services.encryption import EncryptionService
 
 
 class Channel(models.Model):
@@ -28,7 +29,7 @@ class EmailConfiguration(models.Model):
     host = models.CharField(max_length=255)
     port = models.PositiveIntegerField()
     username = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
+    password = models.TextField()
     from_email = models.EmailField()
     display_name = models.CharField(max_length=100)
     use_tls = models.BooleanField(default=True)
@@ -52,17 +53,20 @@ class EmailConfiguration(models.Model):
         if self.use_tls and self.use_ssl:
             raise ValidationError({
                 "use_tls": "TLS and SSL cannot both be enabled.",
-                "use_ssl": "TLS and SSL cannot both be enabled."
-            })
+                "use_ssl": "TLS and SSL cannot both be enabled."})
 
         if not self.use_tls and not self.use_ssl:
             raise ValidationError({
                 "use_tls": "Either TLS or SSL must be enabled.",
-                "use_ssl": "Either TLS or SSL must be enabled."
-            })
+                "use_ssl": "Either TLS or SSL must be enabled."})
 
     def save(self, *args, **kwargs):
         self.full_clean()
+
+        encryption_service = EncryptionService()
+        if self.password:
+            self.password = encryption_service.encrypt(self.password)
+
         super().save(*args, **kwargs)
 
     def __str__(self):
