@@ -1,4 +1,5 @@
 import environ
+from kombu import Exchange, Queue
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,6 +22,7 @@ INSTALLED_APPS = [
     # my apps
     'account.apps.AccountConfig',
     'channel.apps.ChannelConfig',
+    'notification.apps.NotificationConfig',
     # packages
     'rest_framework',
 
@@ -114,8 +116,28 @@ STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'account.User'
 
+# celery
+notification_exchange = Exchange("notification_exchange", type="topic")
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+CELERY_TASK_QUEUES = (
+    Queue("notification_queue", exchange=notification_exchange, routing_key="notification", ),
+    Queue("email_queue", exchange=notification_exchange, routing_key="email", ),
+    Queue("sms_queue", exchange=notification_exchange, routing_key="sms", ),
+    Queue("telegram_queue", exchange=notification_exchange, routing_key="telegram", )
+)
+CELERY_TASK_ROUTES = {
+    "channel.tasks.send_email": {"queue": "email_queue", "routing_key": "email"},
+    "notification.tasks.dispatch_notification": {"queue": "notification_queue", "routing_key": "notification"} }
 
-
+# email
 EMAIL_ENCRYPTION_KEY = env("EMAIL_ENCRYPTION_KEY")
+
+# redis
+REDIS_URL = env("REDIS_URL")
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+    }
+}

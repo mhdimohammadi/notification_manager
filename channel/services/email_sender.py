@@ -1,7 +1,7 @@
 from email.utils import formataddr
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail.backends.smtp import EmailBackend
-from ..models import EmailConfiguration
+from channel.services.email_configuration_data import EmailConfigurationData
 import smtplib
 import socket
 from .exceptions import EmailTimeoutError,EmailConnectionError,EmailAuthenticationError,EmailConfigurationError
@@ -9,7 +9,7 @@ from .encryption import EncryptionService
 from cryptography.fernet import InvalidToken
 
 class EmailSender:
-    def __init__(self, configuration: EmailConfiguration):
+    def __init__(self, configuration: EmailConfigurationData):
         self.configuration = configuration
 
     def send(self, *, to, subject, body, html_body=None, cc=None, bcc=None, ):
@@ -34,7 +34,11 @@ class EmailSender:
         message = EmailMultiAlternatives(
             subject=subject,
             body=body,
-            from_email=from_email, to=to, cc=cc, bcc=bcc, connection=connection, )
+            from_email=from_email,
+            to=[to],
+            cc=cc,
+            bcc=bcc,
+            connection=connection)
 
         if html_body:
             message.attach_alternative(html_body, "text/html", )

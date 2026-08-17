@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from .models import Channel, EmailConfiguration
 from .serializers import ChannelSerializer, EmailSerializer
+from .services.email_configuration_cache import EmailConfigurationCache
 
 
 class ChannelViewSet(ModelViewSet):
@@ -27,3 +28,4 @@ class ChannelViewSet(ModelViewSet):
 class EmailConfigurationViewSet(ModelViewSet):
     queryset = EmailConfiguration.objects.select_related('channel')
     serializer_class = EmailSerializer
+

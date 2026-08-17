@@ -1,6 +1,6 @@
 from rest_framework import serializers
-
 from channel.models import Channel, EmailConfiguration
+from channel.services.email_configuration_cache import EmailConfigurationCache
 
 
 class ChannelSerializer(serializers.ModelSerializer):
@@ -57,3 +57,5 @@ class EmailSerializer(serializers.ModelSerializer):
         attrs.pop("confirm_password")
 
         return attrs
+
+
