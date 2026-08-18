@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from .mongodb import db
+from .mongodb import get_db
 
 
 class NotificationLogService:
@@ -21,6 +21,10 @@ class NotificationLogService:
             "metadata": metadata or {},
         }
 
-        return db[cls.COLLECTION_NAME].insert_one(document)
+        return get_db()[cls.COLLECTION_NAME].insert_one(document)
 
 
+
+    @classmethod
+    def get_log_for_notification(cls, notification_id):
+        return get_db()[cls.COLLECTION_NAME].find({"notification_id": notification_id}).sort("created_at", 1)
