@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'channel.apps.ChannelConfig',
     'notification.apps.NotificationConfig',
+    'notification_log.apps.NotificationLogConfig',
     # packages
     'rest_framework',
 
@@ -141,3 +142,7 @@ CACHES = {
         "LOCATION": REDIS_URL,
     }
 }
+
+
+# mongodb
+MONGODB_URL = env("MONGODB_URL")

@@ -6,4 +6,5 @@ urlpatterns = [
     path('', include('account.urls', namespace='account')),
     path('', include('channel.urls', namespace='channel')),
     path('', include('notification.urls', namespace='notification')),
+    path('', include('notification_log.urls', namespace='notification_log')),
 ]
