@@ -1,5 +1,7 @@
 from django.db import models
 from channel.models import Channel
+from django.conf import settings
+
 
 
 class Notification(models.Model):
@@ -10,6 +12,7 @@ class Notification(models.Model):
         FAILED = "failed", "failed"
 
     channel = models.ForeignKey(Channel, on_delete=models.PROTECT, related_name="notifications")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="notifications")
     recipient = models.EmailField(max_length=255)
     subject = models.CharField(max_length=255, blank=True)
     body = models.TextField()

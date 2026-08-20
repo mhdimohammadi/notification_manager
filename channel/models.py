@@ -24,8 +24,7 @@ class Channel(models.Model):
 
 
 class EmailConfiguration(models.Model):
-    channel = models.OneToOneField(Channel, on_delete=models.CASCADE, related_name="email_configuration", null=True,
-                                   blank=True)
+    channel = models.OneToOneField(Channel, on_delete=models.CASCADE, related_name="email_configuration")
     host = models.CharField(max_length=255)
     port = models.PositiveIntegerField()
     username = models.CharField(max_length=255)
@@ -43,8 +42,6 @@ class EmailConfiguration(models.Model):
     def clean(self):
         super().clean()
 
-        if not self.channel_id:
-            return
 
         if self.channel.type != Channel.ChannelType.EMAIL:
             raise ValidationError({

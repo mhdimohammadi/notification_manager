@@ -1,27 +1,35 @@
 from rest_framework import status, viewsets
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from notification_log.serializers import NotificationLogSerializer
-from notification_log.services.notif_log import NotificationLogService
 from .models import Notification
 from .serializers import NotificationSerializer
 from .tasks import dispatch_notification
 from .services.idempotency import NotificationIdempotency
 from django.db import transaction
 from notification.services.notification_ratelimit import NotificationRateLimit
-from rest_framework.decorators import action
+
 
 
 
 class NotificationViewSet(CreateModelMixin,ListModelMixin,RetrieveModelMixin,viewsets.GenericViewSet):
-    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Notification.objects.all()
+
+        return Notification.objects.filter(created_by=self.request.user)
+
+
 
     def perform_create(self, serializer):
         idempotency_key = self.request.headers["Idempotency-Key"]
 
         with transaction.atomic():
-            notification = serializer.save()
+            notification = serializer.save(created_by=self.request.user)
             self._created_notification = notification
 
             def after_commit():
@@ -74,11 +82,3 @@ class NotificationViewSet(CreateModelMixin,ListModelMixin,RetrieveModelMixin,vie
             raise
 
 
-
-    @action(detail=True,methods=["get"])
-    def logs(self, request, pk=None):
-        notification_id = int(pk)
-        Notification.objects.get(pk=pk)
-        logs = NotificationLogService.get_log_for_notification(notification_id)
-        serializer = NotificationLogSerializer(logs, many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
