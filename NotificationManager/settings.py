@@ -129,7 +129,9 @@ CELERY_TASK_QUEUES = (
 )
 CELERY_TASK_ROUTES = {
     "channel.tasks.send_email": {"queue": "email_queue", "routing_key": "email"},
-    "notification.tasks.dispatch_notification": {"queue": "notification_queue", "routing_key": "notification"} }
+    "notification.tasks.dispatch_notification": {"queue": "notification_queue", "routing_key": "notification"},
+    "notification_log.tasks.cleanup_notification_logs": {"queue": "notification_queue", "routing_key": "notification"}
+}
 
 # email
 EMAIL_ENCRYPTION_KEY = env("EMAIL_ENCRYPTION_KEY")
@@ -146,3 +148,11 @@ CACHES = {
 
 # mongodb
 MONGODB_URL = env("MONGODB_URL")
+
+
+# DRF
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}

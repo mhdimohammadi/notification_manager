@@ -1,5 +1,4 @@
-from datetime import datetime, timezone
-
+from datetime import datetime, timedelta, timezone
 from .mongodb import get_db
 
 
@@ -28,3 +27,9 @@ class NotificationLogService:
     @classmethod
     def get_log_for_notification(cls, notification_id):
         return get_db()[cls.COLLECTION_NAME].find({"notification_id": notification_id}).sort("created_at", 1)
+
+
+    @classmethod
+    def delete_expired_logs(cls):
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=90)
+        return get_db()[cls.COLLECTION_NAME].delete_many({"created_at": {"$lt": cutoff_date}})
